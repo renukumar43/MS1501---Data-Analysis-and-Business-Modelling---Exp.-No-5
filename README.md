@@ -44,4 +44,87 @@ The dataset consists of 16 manually entered customer data points representing tw
 
 ## Program & Output
 
+# 1. Import required Python libraries
+import numpy as np  
+import pandas as pd  
+import matplotlib.pyplot as plt  
+from sklearn.cluster import KMeans  
+
+print("Libraries imported successfully.")  
+
+# 2. Enter the customer data points
+X = np.array([20, 22, 25, 70, 75, 80, 30, 35, 32, 24, 28, 75, 71, 83, 28, 27])
+Y = np.array([30, 35, 40, 80, 85, 90, 70, 75, 33, 31, 45, 70, 83, 89, 60, 67])
+
+# 3. Combine both features into a 2D feature matrix
+data = np.column_stack((X, Y))  
+
+df = pd.DataFrame({
+    "Annual Income (Lakhs)": X,  
+    "Spending Score": Y
+})
+
+print("Customer dataset:")  
+display(df)  
+
+# 4. Initialize the K-Means model with K = 3
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)  
+
+print("K-Means model initialized with 3 clusters.")  
+
+# 5. Fit the model and assign cluster labels
+labels = kmeans.fit_predict(data)  
+
+df["Cluster"] = labels
+  
+print("Cluster labels assigned successfully:")  
+display(df)  
+
+# 6. Retrieve cluster centroids and labels
+centroids = kmeans.cluster_centers_
+
+print("Cluster centroids (Annual Income, Spending Score):")  
+for cluster_number, center in enumerate(centroids):  
+    print(f"Cluster {cluster_number}: ({center[0]:.2f}, {center[1]:.2f})")  
+
+print("\nAssigned labels:")  
+print(kmeans.labels_)  
+
+# 7. Visualize clusters and their centroids
+plt.figure(figsize=(9, 6))
+
+for cluster_number in range(3):
+    cluster_points = data[labels == cluster_number]
+    plt.scatter(
+        cluster_points[:, 0],
+        cluster_points[:, 1],
+        label=f"Cluster {cluster_number}"
+    )
+
+plt.scatter(
+    centroids[:, 0],
+    centroids[:, 1],
+    marker="X",
+    s=250,
+    edgecolor="black",
+    label="Centroids"
+)
+
+plt.title("Customer Segmentation using K-Means Clustering")  
+plt.xlabel("Annual Income (Lakhs)")  
+plt.ylabel("Spending Score")  
+plt.legend()  
+plt.grid(True)  
+plt.tight_layout()  
+plt.show()  
+
+
+# 8. Display the number of customers in each cluster
+print("Number of customers in each cluster:")  
+display(df["Cluster"].value_counts().sort_index())  
+
+print("Cluster-wise average customer profile:")  
+display(df.groupby("Cluster")[["Annual Income (Lakhs)", "Spending Score"]].mean().round(2))  
+
+
 ## Result
